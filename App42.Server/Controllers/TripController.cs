@@ -169,7 +169,7 @@ namespace App42.Server.Controllers
                 {
                     q = q.Where(e => e.Id > afterEventId);
                 }
-                var evts = q.OrderByDescending(e => e.Date).ToArray();
+                var evts = q.OrderByDescending(e => e.Id).ToArray();
 
                 return Json(evts);
             }
