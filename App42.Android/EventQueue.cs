@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace App42
 {
@@ -37,7 +38,19 @@ namespace App42
                 var evts = new Event[10];
                 while ((popped = _events.TryPopRange(evts)) > 0)
                 {
-                    await repository.PostEvents(_tripId, evts.Take(popped).ToArray());
+                    while (true)
+                    {
+                        try
+                        {
+                            await repository.PostEvents(_tripId, evts.Take(popped).ToArray());
+                            break;
+                        }
+                        catch
+                        {
+                            Thread.Sleep(20000);
+                        }
+                    }
+                                      
                 }
                 OnFlush?.Invoke();
             }
