@@ -18,6 +18,7 @@ export default class Trip extends React.Component {
         };
         this.refreshing = false;
         this.unmounted = false;
+        this.events = [];
     }
 
     componentDidMount() {
@@ -72,12 +73,14 @@ export default class Trip extends React.Component {
                 return;
             }
 
+            this.events = this.events.concat(evs);
+
             evs.sort((x, y) => new Date(x.date) - new Date(y.date));
 
             const lastEventId = evs.reduce((acc, e) => Math.max(acc, e.id), 0);
             this.setState({lastEventId});
 
-            const lastEventTime = evs[evs.length - 1]; // TODO what if prev batch has latest event? store all events and search for last among them
+            const lastEventTime = evs[evs.length - 1].date; // TODO what if prev batch has latest event? store all events and search for last among them
             this.setState({lastEventTime});
 
             const gmapsCoords = evs.map(toGMapsCoords);
