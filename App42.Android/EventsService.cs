@@ -7,6 +7,7 @@ using Android.Gms.Common;
 using Android.Gms.Common.Apis;
 using Android.Gms.Location;
 using Android.Locations;
+using Android.Net;
 using Android.OS;
 using Android.Widget;
 
@@ -56,8 +57,7 @@ namespace App42
             base.OnDestroy();
             ShowNotification("Stopping");
 
-            // TODO Flush?
-            // TODO what if flushing?
+            // TODO what if flushing?            
             _events.Dispose();
 
             await Task.WhenAll(
@@ -105,7 +105,9 @@ namespace App42
             locationRequest.SetInterval(Consts.LocationRequestInterval);
             locationRequest.SetFastestInterval(Consts.FastestLocationRequestInterval);
 
-            _events = new EventQueue(_tripId);
+            var cm = (ConnectivityManager)GetSystemService(ConnectivityService);
+
+            _events = new EventQueue(_tripId, () => cm.ActiveNetworkInfo?.IsConnected == true);
             _events.OnFlush += OnFlush;
             await LocationServices.FusedLocationApi.RequestLocationUpdates(_googleApi, locationRequest, this);
             ShowNotification("Tripping");

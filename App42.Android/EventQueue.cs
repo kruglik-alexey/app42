@@ -9,13 +9,17 @@ namespace App42
     class EventQueue : IDisposable
     {
         private readonly int _tripId;
+        private readonly Func<bool> _connectionStatusProvider;
         private readonly ConcurrentStack<Event> _events = new ConcurrentStack<Event>();
         private readonly Timer _timer;
         private bool _flushing = false;
+        private readonly EventRepository _repository;
 
-        public EventQueue(int tripId)
+        public EventQueue(int tripId, Func<bool> connectionStatusProvider)
         {
             _tripId = tripId;
+            _connectionStatusProvider = connectionStatusProvider;
+            _repository = new EventRepository();
             _timer = new Timer(_ => Flush(), null, 0, Consts.FlushInterval);
         }
 
@@ -29,40 +33,48 @@ namespace App42
             }
 
             Logger.I(">EventQueue.Flush");
-            _flushing = true;
 
-            var repository = new EventRepository();
             try
             {
+                if (!_connectionStatusProvider())
+                {
+                    Logger.I("EventQueue.Flush no connection");
+                    return;
+                }
+                
                 int popped;
                 var evts = new Event[10];
                 while ((popped = _events.TryPopRange(evts)) > 0)
                 {
-                    while (true)
+                    try
                     {
-                        try
-                        {
-                            await repository.PostEvents(_tripId, evts.Take(popped).ToArray());
-                            break;
-                        }
-                        catch
-                        {
-                            Thread.Sleep(20000);
-                        }
+                        await _repository.PostEvents(_tripId, evts.Take(popped).ToArray());                        
                     }
-                                      
-                }
-                OnFlush?.Invoke();
+                    catch
+                    {
+                        _events.PushRange(evts, 0, popped);
+                        throw;
+                    }
+                    OnFlush?.Invoke();
+                }                
             }
-            finally
+            catch(Exception e)
+            {
+                Logger.E(e);
+            }
+            finally 
             {
                 _flushing = false;
-            }
-            Logger.I("<EventQueue.Flush");
+                Logger.I("<EventQueue.Flush");
+            }           
         }
 
         public void Add(Event evt) => _events.Push(evt);
 
-        public void Dispose() => _timer.Dispose();
+        public void Dispose()
+        {
+            _timer.Dispose();
+            Flush();
+        }
     }
 }

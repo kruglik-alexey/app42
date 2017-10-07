@@ -19,5 +19,10 @@ namespace App42
         {
             Log.Error(Tag, message);
         }
+
+        public static void E(Exception exception)
+        {
+            Log.Error(Tag, $"{exception.GetType().Name} {exception.Message}");
+        }
     }
 }
