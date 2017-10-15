@@ -23,9 +23,11 @@ namespace App42
         public const string ReasonBoot = "boot";
 
         private GoogleApiClient _googleApi;
+        private ConnectivityManager _connectivityManager;
         private EventQueue _events;
         private int _tripId;
         private bool _running;
+        private DateTime _lastFlush;
 
         public override IBinder OnBind(Intent intent) => null;
 
@@ -105,17 +107,32 @@ namespace App42
             locationRequest.SetInterval(Consts.LocationRequestInterval);
             locationRequest.SetFastestInterval(Consts.FastestLocationRequestInterval);
 
-            var cm = (ConnectivityManager)GetSystemService(ConnectivityService);
+            _connectivityManager = (ConnectivityManager)GetSystemService(ConnectivityService);
 
-            _events = new EventQueue(_tripId, () => cm.ActiveNetworkInfo?.IsConnected == true);
+            _events = new EventQueue(_tripId, HasConnection);
+            _events.OnBeforeFlush += OnBeforeFlush;
             _events.OnFlush += OnFlush;
             await LocationServices.FusedLocationApi.RequestLocationUpdates(_googleApi, locationRequest, this);
             ShowNotification("Tripping");
         }
 
+        private bool HasConnection()
+        {
+            return _connectivityManager.ActiveNetworkInfo?.IsConnected == true;
+        }
+
+        private void OnBeforeFlush()
+        {
+            if (!HasConnection())
+            {
+                ShowNotification($"Tripping, last flush {_lastFlush.ToShortTimeString()}, no connection");
+            }            
+        }
+
         private void OnFlush()
         {
-            ShowNotification($"Tripping, last flush {DateTime.Now.ToShortTimeString()}");
+            _lastFlush = DateTime.Now;
+            ShowNotification($"Tripping, last flush {_lastFlush.ToShortTimeString()}");
         }
 
         private async Task StartTrip()

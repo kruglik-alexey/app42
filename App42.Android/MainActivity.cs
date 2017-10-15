@@ -65,7 +65,8 @@ namespace App42
         private bool RequestPermissions()
         {
             if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.AccessFineLocation) == Permission.Granted &&
-                ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReceiveBootCompleted) == Permission.Granted)
+                ContextCompat.CheckSelfPermission(this, Manifest.Permission.ReceiveBootCompleted) == Permission.Granted &&
+                ContextCompat.CheckSelfPermission(this, Manifest.Permission.AccessNetworkState) == Permission.Granted)
             {
                 return true;
             }
@@ -74,7 +75,9 @@ namespace App42
             {
                 // TODO
             }
-            ActivityCompat.RequestPermissions(this, new[] {Manifest.Permission.AccessFineLocation, Manifest.Permission.ReceiveBootCompleted}, 0);
+            ActivityCompat.RequestPermissions(this, new[] {
+                Manifest.Permission.AccessFineLocation, Manifest.Permission.ReceiveBootCompleted, Manifest.Permission.AccessNetworkState
+            }, 0);
             return false;
         }
 

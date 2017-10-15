@@ -23,6 +23,7 @@ namespace App42
             _timer = new Timer(_ => Flush(), null, 0, Consts.FlushInterval);
         }
 
+        public event Action OnBeforeFlush;
         public event Action OnFlush;
 
         private async void Flush()
@@ -36,6 +37,7 @@ namespace App42
 
             try
             {
+                OnBeforeFlush?.Invoke();
                 if (!_connectionStatusProvider())
                 {
                     Logger.I("EventQueue.Flush no connection");
