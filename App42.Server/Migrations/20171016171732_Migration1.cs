@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace App42.Server.Migrations
 {
@@ -12,11 +12,11 @@ namespace App42.Server.Migrations
                 name: "Trips",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    EndDate = table.Column<DateTime>(nullable: true),
-                    InProgress = table.Column<bool>(nullable: false),
-                    StartDate = table.Column<DateTime>(nullable: false)
+                    EndDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    InProgress = table.Column<bool>(type: "INTEGER", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -27,16 +27,16 @@ namespace App42.Server.Migrations
                 name: "Events",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    Charge = table.Column<int>(type: "INTEGER", nullable: true),
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Date = table.Column<DateTime>(nullable: false),
-                    Discriminator = table.Column<int>(nullable: false),
-                    TripId = table.Column<int>(nullable: false),
-                    Charge = table.Column<int>(nullable: true),
-                    Accuracy = table.Column<float>(nullable: true),
-                    Lat = table.Column<decimal>(nullable: true),
-                    Lon = table.Column<decimal>(nullable: true),
-                    Speed = table.Column<float>(nullable: true)
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Discriminator = table.Column<int>(type: "INTEGER", nullable: false),
+                    TripId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Accuracy = table.Column<float>(type: "REAL", nullable: true),
+                    Lat = table.Column<double>(type: "REAL", nullable: true),
+                    Lon = table.Column<double>(type: "REAL", nullable: true),
+                    Speed = table.Column<float>(type: "REAL", nullable: true)
                 },
                 constraints: table =>
                 {

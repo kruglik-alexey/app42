@@ -10,6 +10,7 @@ using Android.Locations;
 using Android.Net;
 using Android.OS;
 using Android.Widget;
+ using App42.Common;
 
 namespace App42
 {

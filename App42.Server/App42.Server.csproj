@@ -25,4 +25,8 @@ npm run b
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\App42.Common\App42.Common.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace App42.Server.Data
+namespace App42.Common
 {
     public class Trip
     {
@@ -41,8 +36,8 @@ namespace App42.Server.Data
         public static readonly int Descriminator = 0;
         public static readonly string TypeStatic = "l";
 
-        [Required] public decimal Lat { get; set; }
-        [Required] public decimal Lon { get; set; }
+        [Required] public double Lat { get; set; }
+        [Required] public double Lon { get; set; }
         [Required] public float Accuracy { get; set; }
         [Required] public float Speed { get; set; }
 
@@ -57,25 +52,5 @@ namespace App42.Server.Data
         [Required] public int Charge { get; set; }
 
         public override string Type => TypeStatic;
-    }
-
-    public class App42Context : DbContext
-    {
-        public DbSet<Trip> Trips { get; set; }
-        public DbSet<Event> Events { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            var path = Path.Combine(Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath), "app42.sqlite");
-            optionsBuilder.UseSqlite($"Data Source={path}");
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Event>()
-                .HasDiscriminator<int>("Discriminator")
-                .HasValue<LocationEvent>(LocationEvent.Descriminator)
-                .HasValue<BatteryEvent>(BatteryEvent.Descriminator);
-        }
     }
 }
